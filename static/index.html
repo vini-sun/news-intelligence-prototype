@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Intelligence Prototype</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="/static/emerson.jpeg" alt="Emerson Logo" class="logo-icon">
+                <h1 class="header-title">News Intelligence Prototype</h1>
+            </div>
+            <button class="profile-icon" onclick="toggleProfilePanel()">
+                <span>👤</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Profile Panel -->
+    <div class="profile-panel" id="profilePanel">
+        <div class="profile-panel-header">
+            <h3 class="profile-panel-title">Profile</h3>
+            <button class="profile-panel-close" onclick="toggleProfilePanel()">✖</button>
+        </div>
+        <div class="profile-panel-content">
+            <div class="profile-avatar">
+                <span class="profile-avatar-icon">👤</span>
+            </div>
+            <div class="profile-info">
+                <div class="profile-label">User ID</div>
+                <div class="profile-value">Vinitha S.</div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-label">Team</div>
+                <div class="profile-value">News Team 1</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Panel Overlay -->
+    <div class="profile-panel-overlay" id="profilePanelOverlay" onclick="toggleProfilePanel()" style="display: none;"></div>
+
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <!-- Topic Dropdown -->
+                <div class="topic-selector-container">
+                    <div class="topic-selector" onclick="toggleTopicDropdown()">
+                        <div class="topic-display">
+                            <span class="topic-icon">🐋</span>
+                            <span class="topic-text">Whale Migration</span>
+                        </div>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="topic-dropdown" id="topicDropdown" style="display: none;">
+                        <div class="topic-option selected">
+                            <span class="topic-icon">🐋</span>
+                            <span>Whale Migration</span>
+                        </div>
+                        <button class="add-topic-button" onclick="openAddTopicModal(event)">
+                            <span>+ Add topic</span>
+                        </button>
+                    </div>
+                </div>
+
+                <nav class="nav">
+                    <button class="nav-button nav-button-active" onclick="navigateTo('home')">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Home</span>
+                    </button>
+                    <button class="nav-button" onclick="navigateTo('executive-summaries')">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Executive Summaries</span>
+                    </button>
+                    <button class="nav-button" onclick="navigateTo('theme-mapping')">
+                        <span class="nav-icon">🗺️</span>
+                        <span class="nav-text">Theme Mapping</span>
+                    </button>
+                    <button class="nav-button" onclick="navigateTo('articles')">
+                        <span class="nav-icon">📰</span>
+                        <span class="nav-text">Articles</span>
+                    </button>
+                </nav>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+                <span class="toggle-arrow">◀</span>
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Home Page (Dashboard) -->
+            <div id="homePage" class="page-view">
+                <div class="container">
+                    <!-- Dashboard Header -->
+                    <div class="dashboard-header">
+                    <div>
+                        <h2 class="dashboard-title">Dashboard</h2>
+                        <p class="dashboard-subtitle">AI-generated insights from recent news signals</p>
+                    </div>
+                    <div class="dashboard-actions">
+                        <div class="last-updated">
+                            <div class="last-updated-label">Last updated</div>
+                            <div class="last-updated-time" id="lastUpdated">Loading...</div>
+                        </div>
+                        <button class="refresh-button" id="refreshButton" onclick="loadDashboardData()">
+                            <span class="refresh-icon">🔄</span>
+                            Refresh News Intelligence
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Executive Brief -->
+                <section class="card executive-brief">
+                    <div class="card-header-with-actions">
+                        <h3 class="card-title">Executive Brief</h3>
+                        <div class="card-actions">
+                            <button class="edit-button" id="editBriefButton" onclick="enableEditMode()">
+                                ✏️ Edit
+                            </button>
+                            <button class="save-button" id="saveBriefButton" onclick="saveExecutiveBrief()" style="display: none;">
+                                💾 Save
+                            </button>
+                            <button class="cancel-button" id="cancelBriefButton" onclick="cancelEditMode()" style="display: none;">
+                                ✖️ Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <ul class="executive-list" id="executiveBrief">
+                        <li class="loading">Loading executive summary...</li>
+                    </ul>
+                    <button class="add-bullet-button" id="addBulletButton" onclick="addBulletPoint()">
+                        + Add Bullet Point
+                    </button>
+                </section>
+
+                <!-- Theme Signals -->
+                <section class="theme-signals-section">
+                    <h3 class="section-title">Theme Signals</h3>
+                    <div class="theme-signals-grid" id="themeSignals">
+                        <!-- Theme cards will be inserted here -->
+                        <div class="loading-card">Loading themes...</div>
+                    </div>
+                </section>
+
+                <!-- Article Intelligence Feed -->
+                <section class="article-feed-section">
+                    <div class="article-feed-header">
+                        <h3 class="section-title">Article Intelligence Feed</h3>
+                        <div class="sort-controls">
+                            <label class="sort-label">Sort by</label>
+                            <select class="sort-select" id="articleSortSelect" onchange="sortArticles()">
+                                <option value="newest">Newest first</option>
+                                <option value="oldest">Oldest first</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="article-grid" id="articleFeed">
+                        <!-- Article cards will be inserted here -->
+                        <div class="loading-card">Loading articles...</div>
+                    </div>
+                </section>
+                </div>
+            </div>
+
+            <!-- Executive Summaries Page -->
+            <div id="executiveSummariesPage" class="page-view" style="display: none;">
+                <div class="container">
+                    <div class="coming-soon">
+                        <h2>Feature coming soon!</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Mapping Page -->
+            <div id="themeMappingPage" class="page-view" style="display: none;">
+                <div class="container">
+                    <div class="coming-soon">
+                        <h2>Feature coming soon!</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Articles Page -->
+            <div id="articlesPage" class="page-view" style="display: none;">
+                <div class="container">
+                    <div class="coming-soon">
+                        <h2>Feature coming soon!</h2>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Topic Modal -->
+    <div class="modal-overlay" id="addTopicModal" style="display: none;" onclick="closeAddTopicModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Create a new topic to track latest news for:</h3>
+                <button class="modal-close" onclick="closeAddTopicModal(event)">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" id="topicTitle" placeholder="e.g., Climate Change Impact">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Key Sub-topics</label>
+                    <textarea class="form-textarea" id="topicSubtopics" rows="3" placeholder="Enter key sub-topics, one per line or comma-separated"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Topics to Avoid</label>
+                    <textarea class="form-textarea" id="topicAvoid" rows="3" placeholder="Enter topics to exclude from results"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-button modal-button-secondary" onclick="closeAddTopicModal(event)">Cancel</button>
+                <button class="modal-button modal-button-primary" onclick="saveNewTopic()">Create Topic</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

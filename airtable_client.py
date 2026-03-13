@@ -5,8 +5,11 @@ Airtable client for storing news intelligence data.
 import os
 from datetime import datetime
 from email.utils import parsedate_to_datetime
+from dotenv import load_dotenv
 from pyairtable import Table
 
+# Load environment variables
+load_dotenv()
 
 # Airtable configuration
 AIRTABLE_ACCESS_TOKEN = os.getenv("AIRTABLE_ACCESS_TOKEN")
@@ -342,6 +345,21 @@ def get_all_runs():
     return records
 
 
+def get_most_recent_run():
+    """
+    Get the most recent run from Airtable.
+
+    Returns:
+        dict: Most recent run record or None if no runs exist
+    """
+    table = get_runs_table()
+
+    # Sort by Run Date descending to get most recent (use '-' prefix for descending)
+    records = table.all(sort=['-Run Date'])
+
+    return records[0] if records else None
+
+
 def delete_run(run_id):
     """
     Delete a run record by run_id.
@@ -364,3 +382,79 @@ def delete_run(run_id):
 
     print(f"Run record not found: {run_id}")
     return False
+
+
+def update_run_themes(run_id, themes_with_counts):
+    """
+    Update the Themes field in a run record with themes and their mention counts.
+
+    Args:
+        run_id: Pipeline run identifier
+        themes_with_counts: List of dicts with 'theme' and 'mentions' keys
+
+    Returns:
+        dict: Updated run record or None if not found
+    """
+    table = get_runs_table()
+
+    formula = f"{{Run ID}} = '{run_id}'"
+    records = table.all(formula=formula)
+
+    if not records:
+        print(f"Run record not found: {run_id}")
+        return None
+
+    # Format themes as "Theme1: 5, Theme2: 3, Theme3: 2"
+    themes_text = ", ".join([f"{t['theme']}: {t['mentions']}" for t in themes_with_counts])
+
+    # Update the record
+    updated = table.update(records[0]['id'], {"Themes": themes_text})
+    print(f"✓ Updated themes for run: {run_id}")
+
+    return updated
+
+
+def update_article_theme(article_id, theme):
+    """
+    Update the Theme field for an article.
+
+    Args:
+        article_id: Airtable record ID
+        theme: Theme string to assign
+
+    Returns:
+        dict: Updated article record
+    """
+    table = get_table()
+    updated = table.update(article_id, {"Theme": theme})
+    return updated
+
+
+def update_executive_summary(run_id, executive_summary_list):
+    """
+    Update the Executive Summary field for a run.
+
+    Args:
+        run_id: Pipeline run identifier
+        executive_summary_list: List of executive summary bullet points
+
+    Returns:
+        dict: Updated run record or None if not found
+    """
+    table = get_runs_table()
+
+    formula = f"{{Run ID}} = '{run_id}'"
+    records = table.all(formula=formula)
+
+    if not records:
+        print(f"Run record not found: {run_id}")
+        return None
+
+    # Format executive summary as numbered list
+    executive_summary_text = "\n".join([f"{i+1}. {bullet}" for i, bullet in enumerate(executive_summary_list)])
+
+    # Update the record
+    updated = table.update(records[0]['id'], {"Executive Summary": executive_summary_text})
+    print(f"✓ Updated executive summary for run: {run_id}")
+
+    return updated
