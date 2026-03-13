@@ -1,0 +1,7 @@
+requests
+openai
+anthropic
+fastapi
+uvicorn[standard]
+pyairtable
+python-dotenv
