@@ -423,11 +423,20 @@ def update_article_theme(article_id, theme):
         theme: Theme string to assign
 
     Returns:
-        dict: Updated article record
+        dict: Updated article record or None if update fails
     """
     table = get_table()
-    updated = table.update(article_id, {"Theme": theme})
-    return updated
+    try:
+        updated = table.update(article_id, {"Theme": theme})
+        return updated
+    except Exception as e:
+        # If theme doesn't exist in Airtable select options, skip silently
+        if "INVALID_MULTIPLE_CHOICE_OPTIONS" in str(e):
+            print(f"  ⚠ Skipping theme update for article {article_id}: theme '{theme}' not in Airtable options")
+            return None
+        else:
+            # Re-raise other errors
+            raise
 
 
 def update_executive_summary(run_id, executive_summary_list):
